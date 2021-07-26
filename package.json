@@ -1,0 +1,33 @@
+{
+    "name": "basic-socketio-express-app",
+    "version": "1.0.0",
+    "description": "Example ws service for creating simple socketio app based on express",
+    "main": "./src/main.js",
+    "directories": {
+        "doc": "docs"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node ./src/main.js",
+        "start:dev": "nodemon ./src/main.js"
+    },
+    "author": "Yaroslav Mynchenko",
+    "license": "ISC",
+    "dependencies": {
+        "cors": "2.8.5",
+        "dotenv": "10.0.0",
+        "express": "4.17.1",
+        "jsonwebtoken": "8.5.1",
+        "redis": "3.1.2",
+        "socket.io": "4.1.3",
+        "socket.io-redis": "6.1.1"
+    },
+    "devDependencies": {
+        "cz-conventional-changelog": "3.3.0"
+    },
+    "config": {
+        "commitizen": {
+            "path": "./node_modules/cz-conventional-changelog"
+        }
+    }
+}
