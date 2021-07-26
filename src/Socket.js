@@ -26,11 +26,9 @@ class Socket {
     }
 
     auth(socket) {
-        const token = socket.handshake.auth.token
-            ? socket.handshake.auth.token.split(' ')[1]
-            : null;
+        const { token } = socket.handshake.auth;
 
-        if (token) {
+        if (token && token.split(' ')[1]) {
             try {
                 const user = jwt.verify(token, CONFIG.JWT_SECRET);
 
