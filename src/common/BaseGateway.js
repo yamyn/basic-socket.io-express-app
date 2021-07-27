@@ -20,7 +20,7 @@ class BaseGateway {
                 try {
                     const res = await this._listeners[event](ctx, data);
 
-                    callback(res || {});
+                    callback({ data: res });
                 } catch (error) {
                     // can add interceptor in feature
                     if (error.statusCode === 500) {
