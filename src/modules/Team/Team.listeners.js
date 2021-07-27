@@ -5,6 +5,7 @@ class TeamListeners {
     async join(ctx, data) {
         const { team_id } = data;
         const { user, socket } = ctx;
+        console.log('team_id :>> ', team_id);
 
         const team = await TeamService.getTeamInfo(team_id, user.id);
         if (!team) {

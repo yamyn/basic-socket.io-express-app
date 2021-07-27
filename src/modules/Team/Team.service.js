@@ -1,13 +1,13 @@
 const TeamModel = require('./Team.model');
 
-class TestRoomService {
+class TeamService {
     getTeamInfo(team_id, user_id) {
-        return this.TeamModel.getTeamInfo(team_id, user_id);
+        return TeamModel.getTeamInfo(team_id, user_id);
     }
 
     getTeamMembers(team_id, user_id) {
-        return this.TeamModel.getTeamMembers(team_id, user_id);
+        return TeamModel.getTeamMembers(team_id, user_id);
     }
 }
 
-module.exports = new TestRoomService();
+module.exports = new TeamService();

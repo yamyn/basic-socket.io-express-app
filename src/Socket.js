@@ -6,6 +6,7 @@ const createAdapter = require('socket.io-redis');
 
 const CONFIG = require('./config/env');
 const TestRoomGateway = require('./modules/TestRoom/TestRoom.gateway');
+const TeamGateway = require('./modules/Team/Team.gateway');
 
 const redisClient = redis.createClient({
     host: CONFIG.REDIS_HOST,
@@ -33,6 +34,7 @@ class Socket {
             };
 
             TestRoomGateway.initProtectedListeners(ctx);
+            TeamGateway.initProtectedListeners(ctx);
         });
     }
 }

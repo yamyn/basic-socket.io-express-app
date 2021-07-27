@@ -1,5 +1,6 @@
 class TeamModel {
     getTeamInfo(team_id, user_id) {
+        return {};
         // return db /// get team information by team_id and user_id
     }
 
