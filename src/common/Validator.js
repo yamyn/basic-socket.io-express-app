@@ -1,5 +1,7 @@
 const Joi = require('joi');
+
 const ValidationException = require('./Errors/ValidationException');
+const Exception = require('./Errors/BaseException');
 
 class Validator {
     async validate(schema, data) {
@@ -26,6 +28,17 @@ class Validator {
 
             return acc;
         }, '');
+    }
+
+    checkJoiningTeam(ctx, data) {
+        if (!ctx.socket.team_id) {
+            throw new Exception(
+                'Not joined any team, please join your room and try after!',
+                400,
+            );
+        }
+
+        return data;
     }
 }
 

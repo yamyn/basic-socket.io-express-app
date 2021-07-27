@@ -17,18 +17,36 @@ class BaseGateway {
     addListener(event, listener) {
         this._listeners[event] = listener;
 
-        return {
+        const helpOpt = {
             validate: schema => {
+                const oldListener = this._listeners[event];
+
                 this._listeners[event] = async (ctx, data) => {
                     const validatedData = await Validator.validate(
                         schema,
                         data,
                     );
 
-                    return listener(ctx, validatedData);
+                    return oldListener(ctx, validatedData);
                 };
+
+                return helpOpt;
+            },
+
+            addMiddleware: middleware => {
+                const oldListener = this._listeners[event];
+
+                this._listeners[event] = async (ctx, data) => {
+                    const transformedData = await middleware(ctx, data, event);
+
+                    return oldListener(ctx, transformedData);
+                };
+
+                return helpOpt;
             },
         };
+
+        return helpOpt;
     }
 
     initListeners(ctx) {
@@ -40,9 +58,13 @@ class BaseGateway {
                     callback({ data: res });
                 } catch (error) {
                     // can add interceptor in feature
-                    if (error.statusCode === 500) {
+                    if (!error.statusCode || error.statusCode === 500) {
                         // TODO add loger
                         console.log(error);
+
+                        return callback({
+                            error: new Exception(error.message, 500),
+                        });
                     }
 
                     callback({ error });
@@ -65,8 +87,6 @@ class BaseGateway {
         Object.keys(this._listeners).forEach(event => {
             socket.on(this.getEventName(event), async (data, callback) => {
                 try {
-                    console.log('callback :>> ', callback);
-                    console.log('data :>> ', data);
                     const res = await this._listeners[event](
                         { server, user, socket },
                         data,
@@ -75,9 +95,13 @@ class BaseGateway {
                     callback({ data: res });
                 } catch (error) {
                     // can add interceptor in feature
-                    if (error.statusCode === 500) {
+                    if (!error.statusCode || error.statusCode === 500) {
                         // TODO add loger
                         console.log(error);
+
+                        return callback({
+                            error: new Exception(error.message, 500),
+                        });
                     }
 
                     callback({ error });
