@@ -1,6 +1,8 @@
 class TestRoomModel {
     getHello() {
-        return 'Hello world!';
+        return new Promise((resolve, reject) => {
+            resolve('Hello world!');
+        }, 1000);
     }
 }
 

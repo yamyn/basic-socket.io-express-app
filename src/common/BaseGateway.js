@@ -1,3 +1,5 @@
+const Auth = require('./Auth');
+
 class BaseGateway {
     static _instances = {};
 
@@ -19,6 +21,44 @@ class BaseGateway {
             ctx.socket.on(this.getEventName(event), async (callback, data) => {
                 try {
                     const res = await this._listeners[event](ctx, data);
+
+                    callback({ data: res });
+                } catch (error) {
+                    // can add interceptor in feature
+                    if (error.statusCode === 500) {
+                        // TODO add loger
+                        console.log(error);
+                    }
+
+                    callback({ error });
+                }
+            });
+        });
+    }
+
+    initProtectedListeners({ server, socket }, role) {
+        const { error, user } = Auth.authenticate(socket);
+        console.log('this.role :>> ', role);
+
+        if (error) {
+            socket.emit('on-auth-error', {
+                error: {
+                    message: error.message,
+                    statusCode: 401,
+                    error: STATUS_CODES[401],
+                },
+            });
+
+            return socket.disconnect();
+        }
+
+        Object.keys(this._listeners).forEach(event => {
+            socket.on(this.getEventName(event), async (callback, data) => {
+                try {
+                    const res = await this._listeners[event](
+                        { server, user, socket },
+                        data,
+                    );
 
                     callback({ data: res });
                 } catch (error) {
