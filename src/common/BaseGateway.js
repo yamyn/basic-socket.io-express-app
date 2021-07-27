@@ -1,4 +1,6 @@
 const Auth = require('./Auth');
+const Exception = require('./Errors/BaseException');
+const Validator = require('./Validator');
 
 class BaseGateway {
     static _instances = {};
@@ -14,11 +16,24 @@ class BaseGateway {
 
     addListener(event, listener) {
         this._listeners[event] = listener;
+
+        return {
+            validate: schema => {
+                this._listeners[event] = async (ctx, data) => {
+                    const validatedData = await Validator.validate(
+                        schema,
+                        data,
+                    );
+
+                    return listener(ctx, validatedData);
+                };
+            },
+        };
     }
 
     initListeners(ctx) {
         Object.keys(this._listeners).forEach(event => {
-            ctx.socket.on(this.getEventName(event), async (callback, data) => {
+            ctx.socket.on(this.getEventName(event), async (data, callback) => {
                 try {
                     const res = await this._listeners[event](ctx, data);
 
@@ -36,25 +51,22 @@ class BaseGateway {
         });
     }
 
-    initProtectedListeners({ server, socket }, role) {
+    initProtectedListeners({ server, socket }) {
         const { error, user } = Auth.authenticate(socket);
-        console.log('this.role :>> ', role);
 
         if (error) {
             socket.emit('on-auth-error', {
-                error: {
-                    message: error.message,
-                    statusCode: 401,
-                    error: STATUS_CODES[401],
-                },
+                error: new Exception(error.message, 401),
             });
 
             return socket.disconnect();
         }
 
         Object.keys(this._listeners).forEach(event => {
-            socket.on(this.getEventName(event), async (callback, data) => {
+            socket.on(this.getEventName(event), async (data, callback) => {
                 try {
+                    console.log('callback :>> ', callback);
+                    console.log('data :>> ', data);
                     const res = await this._listeners[event](
                         { server, user, socket },
                         data,
